@@ -1,0 +1,432 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  #app {
+    font-family: 'Syne', sans-serif;
+    background: #0d1117;
+    color: #e6edf3;
+    min-height: 540px;
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #30363d;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 20px;
+    background: linear-gradient(90deg, #161b22 0%, #0d1117 100%);
+    border-bottom: 1px solid #30363d;
+  }
+  .logo-badge {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #1f6feb, #388bfd);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 12px rgba(56,139,253,0.4);
+  }
+  .logo-badge i { color: #fff; font-size: 18px; }
+  .header-title h1 { font-size: 13px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: #e6edf3; }
+  .header-title p { font-size: 10px; color: #8b949e; margin-top: 2px; font-family: 'DM Mono', monospace; }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .status-badge { display: flex; align-items: center; gap: 6px; background: rgba(35,134,54,0.15); border: 1px solid rgba(35,134,54,0.4); border-radius: 20px; padding: 3px 10px; font-size: 10px; color: #3fb950; font-family: 'DM Mono', monospace; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #3fb950; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.85)} }
+
+  .main { display: flex; flex: 1; min-height: 0; }
+
+  .left-panel {
+    width: 210px; flex-shrink: 0;
+    border-right: 1px solid #21262d;
+    display: flex; flex-direction: column;
+    background: #0d1117;
+  }
+
+  .section-label {
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: #6e7681;
+    padding: 14px 14px 6px;
+  }
+
+  .input-group { padding: 0 10px 10px; display: flex; flex-direction: column; gap: 5px; }
+  .route-input {
+    display: flex; align-items: center; gap: 8px;
+    background: #161b22; border: 1px solid #30363d;
+    border-radius: 8px; padding: 8px 10px; transition: border-color 0.2s;
+  }
+  .route-input:hover { border-color: #388bfd; }
+  .route-input i { font-size: 14px; flex-shrink: 0; }
+  .src-icon { color: #3fb950; }
+  .dst-icon { color: #f78166; }
+  .route-input select {
+    background: none; border: none; outline: none;
+    font-family: 'Syne', sans-serif; font-size: 12px;
+    color: #e6edf3; cursor: pointer; width: 100%; padding: 0;
+  }
+  .route-input select option { background: #0d1117; }
+  .connector-dot { width: 5px; height: 5px; border-radius: 50%; background: #30363d; margin-left: 17px; }
+
+  .algo-pills { padding: 0 10px 10px; display: flex; gap: 5px; }
+  .pill {
+    flex: 1; text-align: center;
+    font-size: 10px; font-weight: 700; font-family: 'DM Mono', monospace;
+    padding: 5px 0; border-radius: 7px;
+    border: 1px solid #30363d; cursor: pointer;
+    background: #161b22; color: #8b949e;
+    transition: all 0.15s; letter-spacing: 0.05em;
+  }
+  .pill:hover { border-color: #388bfd; color: #388bfd; }
+  .pill.selected.bfs { background: rgba(188,103,255,0.15); border-color: #bc67ff; color: #bc67ff; }
+  .pill.selected.ucs { background: rgba(56,139,253,0.15); border-color: #388bfd; color: #388bfd; }
+  .pill.selected.astar { background: rgba(247,129,102,0.15); border-color: #f78166; color: #f78166; }
+
+  .find-btn {
+    margin: 0 10px 12px;
+    background: linear-gradient(135deg, #1f6feb, #388bfd);
+    color: #fff; border: none; border-radius: 8px;
+    padding: 10px 0; font-family: 'Syne', sans-serif;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: opacity 0.15s, transform 0.1s;
+    box-shadow: 0 2px 12px rgba(56,139,253,0.3);
+  }
+  .find-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .find-btn:active { transform: translateY(0); }
+  .find-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .peas-section { border-top: 1px solid #21262d; padding: 10px 10px; flex: 1; overflow-y: auto; }
+  .peas-row { display: flex; align-items: flex-start; gap: 8px; padding: 7px 0; border-bottom: 1px solid #21262d; }
+  .peas-row:last-child { border-bottom: none; }
+  .peas-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .peas-icon i { font-size: 13px; }
+  .peas-row p { font-size: 10px; color: #8b949e; line-height: 1.5; }
+  .peas-row strong { font-size: 10px; font-weight: 700; color: #e6edf3; display: block; margin-bottom: 1px; }
+
+  .center-panel { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .map-area { flex: 1; position: relative; overflow: hidden; background: #0d1117; }
+  #campus-svg { width: 100%; height: 100%; }
+
+  .results-bar {
+    border-top: 1px solid #21262d;
+    padding: 9px 14px;
+    background: #0d1117;
+    min-height: 50px;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .result-chip {
+    display: flex; align-items: center; gap: 6px;
+    border-radius: 20px; padding: 4px 11px;
+    font-size: 10px; font-family: 'DM Mono', monospace;
+  }
+  .result-chip i { font-size: 12px; }
+  .chip-blue { background: rgba(56,139,253,0.12); border: 1px solid rgba(56,139,253,0.3); color: #79c0ff; }
+  .chip-green { background: rgba(63,185,80,0.12); border: 1px solid rgba(63,185,80,0.3); color: #56d364; }
+  .chip-orange { background: rgba(247,129,102,0.12); border: 1px solid rgba(247,129,102,0.3); color: #ffa657; }
+  .chip-purple { background: rgba(188,103,255,0.12); border: 1px solid rgba(188,103,255,0.3); color: #d2a8ff; }
+
+  .log-section {
+    width: 195px; flex-shrink: 0;
+    border-left: 1px solid #21262d;
+    display: flex; flex-direction: column;
+    background: #0d1117;
+  }
+  .log-body { flex: 1; overflow-y: auto; padding: 6px 10px; }
+  .log-entry {
+    display: flex; gap: 8px; align-items: flex-start;
+    padding: 5px 0; border-bottom: 1px solid #21262d;
+    opacity: 0; transform: translateX(6px);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .log-entry.visible { opacity: 1; transform: translateX(0); }
+  .log-entry:last-child { border-bottom: none; }
+  .log-num {
+    width: 16px; height: 16px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    font-size: 8px; font-weight: 700; font-family: 'DM Mono', monospace;
+    margin-top: 1px; background: #161b22; color: #8b949e;
+    border: 1px solid #30363d;
+  }
+  .log-num.done { background: rgba(63,185,80,0.15); border-color: #3fb950; color: #3fb950; }
+  .log-text { font-size: 10px; color: #8b949e; line-height: 1.5; font-family: 'DM Mono', monospace; }
+  .log-text strong { color: #e6edf3; font-weight: 500; }
+  .empty-log { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 8px; color: #484f58; font-size: 10px; font-family: 'DM Mono', monospace; }
+  .empty-log i { font-size: 26px; }
+</style>
+
+
+
+<div id="app">
+  <div class="header">
+    <div class="logo-badge"><i class="ti ti-map-2" aria-hidden="true"></i></div>
+    <div class="header-title">
+      <h1>Intelligent Campus Navigation Assistant</h1>
+      <p>PEAS AI Agent · v2.4</p>
+    </div>
+    <div class="header-right">
+      <div class="status-badge"><div class="status-dot"></div>online</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="left-panel">
+      <div class="section-label">Route</div>
+      <div class="input-group">
+        <div class="route-input">
+          <i class="ti ti-current-location src-icon" aria-hidden="true"></i>
+          <select id="source-select">
+            <option value="Library">Library</option>
+            <option value="Hostel" selected>Hostel</option>
+            <option value="Admin">Admin</option>
+            <option value="CBlock">C Block</option>
+            <option value="Canteen">Canteen</option>
+            <option value="Sports">Sports Ground</option>
+            <option value="LabComplex">Lab Complex</option>
+          </select>
+        </div>
+        <div class="connector-dot"></div>
+        <div class="connector-dot" style="margin-top:3px"></div>
+        <div class="connector-dot" style="margin-top:3px;margin-bottom:3px"></div>
+        <div class="route-input">
+          <i class="ti ti-flag-2 dst-icon" aria-hidden="true"></i>
+          <select id="dest-select">
+            <option value="CBlock" selected>C Block</option>
+            <option value="Library">Library</option>
+            <option value="Hostel">Hostel</option>
+            <option value="Admin">Admin</option>
+            <option value="Canteen">Canteen</option>
+            <option value="Sports">Sports Ground</option>
+            <option value="LabComplex">Lab Complex</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-label">Algorithm</div>
+      <div class="algo-pills">
+        <div class="pill bfs" data-algo="BFS">BFS</div>
+        <div class="pill ucs selected" data-algo="UCS">UCS</div>
+        <div class="pill astar" data-algo="ASTAR">A*</div>
+      </div>
+
+      <button class="find-btn" id="find-btn">
+        <i class="ti ti-route" aria-hidden="true"></i>Find Route
+      </button>
+
+      <div class="peas-section">
+        <div class="section-label" style="padding:0 0 6px">PEAS Model</div>
+        <div class="peas-row">
+          <div class="peas-icon" style="background:rgba(56,139,253,0.15)"><i class="ti ti-trophy" style="color:#388bfd" aria-hidden="true"></i></div>
+          <div><strong>Performance</strong><p>Shortest path · Correct route · Reaches goal</p></div>
+        </div>
+        <div class="peas-row">
+          <div class="peas-icon" style="background:rgba(63,185,80,0.15)"><i class="ti ti-map" style="color:#3fb950" aria-hidden="true"></i></div>
+          <div><strong>Environment</strong><p>Campus graph · Static · Deterministic</p></div>
+        </div>
+        <div class="peas-row">
+          <div class="peas-icon" style="background:rgba(247,166,87,0.15)"><i class="ti ti-cpu" style="color:#ffa657" aria-hidden="true"></i></div>
+          <div><strong>Actuators</strong><p>Display path · Text directions</p></div>
+        </div>
+        <div class="peas-row">
+          <div class="peas-icon" style="background:rgba(188,103,255,0.15)"><i class="ti ti-radar" style="color:#bc67ff" aria-hidden="true"></i></div>
+          <div><strong>Sensors</strong><p>User input · Stored map data</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="center-panel">
+      <div class="map-area">
+        <svg id="campus-svg" viewBox="0 0 440 300" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arr-blue" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+              <path d="M0,0 L0,7 L7,3.5 z" fill="#388bfd"/>
+            </marker>
+          </defs>
+          <g id="edges-layer"></g>
+          <g id="path-layer"></g>
+          <g id="nodes-layer"></g>
+        </svg>
+      </div>
+      <div class="results-bar" id="results-bar">
+        <span style="font-size:10px;color:#484f58;font-family:'DM Mono',monospace;">Select route and algorithm — then click Find Route</span>
+      </div>
+    </div>
+
+    <div class="log-section">
+      <div class="section-label">Agent Log</div>
+      <div class="log-body" id="log-body">
+        <div class="empty-log"><i class="ti ti-terminal-2" aria-hidden="true"></i>awaiting query...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const NODE_COLORS = {
+  Library:    { base:'#bc67ff', ring:'rgba(188,103,255,0.2)' },
+  Hostel:     { base:'#3fb950', ring:'rgba(63,185,80,0.2)' },
+  Admin:      { base:'#388bfd', ring:'rgba(56,139,253,0.2)' },
+  CBlock:     { base:'#f78166', ring:'rgba(247,129,102,0.2)' },
+  Canteen:    { base:'#ffa657', ring:'rgba(255,166,87,0.2)' },
+  Sports:     { base:'#56d364', ring:'rgba(86,211,100,0.2)' },
+  LabComplex: { base:'#79c0ff', ring:'rgba(121,192,255,0.2)' },
+};
+
+const NODES = {
+  Library:    { x:70,  y:80,  label:'Library' },
+  Hostel:     { x:70,  y:200, label:'Hostel' },
+  Admin:      { x:200, y:60,  label:'Admin' },
+  CBlock:     { x:340, y:80,  label:'C Block' },
+  Canteen:    { x:220, y:170, label:'Canteen' },
+  Sports:     { x:360, y:220, label:'Sports' },
+  LabComplex: { x:160, y:250, label:'Lab Complex' },
+};
+
+const EDGES = [
+  ['Library','Admin',50],['Library','Hostel',40],['Admin','CBlock',60],
+  ['Admin','Canteen',70],['Hostel','Canteen',80],['Hostel','LabComplex',55],
+  ['CBlock','Sports',75],['CBlock','Canteen',50],['Canteen','Sports',65],
+  ['Canteen','LabComplex',45],['LabComplex','Sports',90],
+];
+
+const adj={};
+Object.keys(NODES).forEach(n=>adj[n]=[]);
+EDGES.forEach(([a,b,w])=>{adj[a].push([b,w]);adj[b].push([a,w]);});
+
+function heuristic(a,b){const na=NODES[a],nb=NODES[b];return Math.round(Math.sqrt((na.x-nb.x)**2+(na.y-nb.y)**2));}
+function bfs(src,dst){const visited=new Set([src]),queue=[[src,[src]]],explored=[];while(queue.length){const[node,path]=queue.shift();explored.push(node);if(node===dst)return{path,cost:pathCost(path),explored};for(const[nb]of adj[node])if(!visited.has(nb)){visited.add(nb);queue.push([nb,[...path,nb]]);}}return null;}
+function ucs(src,dst){const pq=[[0,src,[src]]],visited=new Set(),explored=[];while(pq.length){pq.sort((a,b)=>a[0]-b[0]);const[cost,node,path]=pq.shift();if(visited.has(node))continue;visited.add(node);explored.push(node);if(node===dst)return{path,cost,explored};for(const[nb,w]of adj[node])if(!visited.has(nb))pq.push([cost+w,nb,[...path,nb]]);}return null;}
+function astar(src,dst){const pq=[[heuristic(src,dst),0,src,[src]]],visited=new Set(),explored=[];while(pq.length){pq.sort((a,b)=>a[0]-b[0]);const[,g,node,path]=pq.shift();if(visited.has(node))continue;visited.add(node);explored.push(node);if(node===dst)return{path,cost:g,explored};for(const[nb,w]of adj[node])if(!visited.has(nb))pq.push([g+w+heuristic(nb,dst),g+w,nb,[...path,nb]]);}return null;}
+function pathCost(path){let c=0;for(let i=0;i<path.length-1;i++){const e=EDGES.find(([a,b])=>(a===path[i]&&b===path[i+1])||(b===path[i]&&a===path[i+1]));if(e)c+=e[2];}return c;}
+
+const svg=document.getElementById('campus-svg');
+const edgesLayer=document.getElementById('edges-layer');
+const nodesLayer=document.getElementById('nodes-layer');
+const pathLayer=document.getElementById('path-layer');
+function ns(tag){return document.createElementNS('http://www.w3.org/2000/svg',tag);}
+function set(el,attrs){Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));return el;}
+
+function drawBase(){
+  edgesLayer.innerHTML='';nodesLayer.innerHTML='';
+  const defs=svg.querySelector('defs');
+
+  EDGES.forEach(([a,b,w])=>{
+    const na=NODES[a],nb=NODES[b];
+    const ca=NODE_COLORS[a].base,cb=NODE_COLORS[b].base;
+    const gradId=`grad-${a}-${b}`;
+    const old=defs.querySelector(`#${gradId}`);if(old)old.remove();
+    const grad=set(ns('linearGradient'),{id:gradId,x1:'0%',y1:'0%',x2:'100%',y2:'0%'});
+    const s1=set(ns('stop'),{'offset':'0%','stop-color':ca,'stop-opacity':'0.5'});
+    const s2=set(ns('stop'),{'offset':'100%','stop-color':cb,'stop-opacity':'0.5'});
+    grad.appendChild(s1);grad.appendChild(s2);defs.appendChild(grad);
+    const line=set(ns('line'),{x1:na.x,y1:na.y,x2:nb.x,y2:nb.y,
+      stroke:`url(#${gradId})`,'stroke-width':'1.5','stroke-dasharray':'5 3'});
+    edgesLayer.appendChild(line);
+    const midX=(na.x+nb.x)/2,midY=(na.y+nb.y)/2;
+    const bg=set(ns('rect'),{x:midX-12,y:midY-9,width:24,height:13,rx:4,fill:'#161b22',stroke:'#30363d','stroke-width':'0.5'});
+    edgesLayer.appendChild(bg);
+    const lbl=set(ns('text'),{x:midX,y:midY,
+      'text-anchor':'middle','font-size':'8','font-family':'DM Mono,monospace',fill:'#8b949e'});
+    lbl.textContent=w+'m';edgesLayer.appendChild(lbl);
+  });
+
+  Object.entries(NODES).forEach(([id,n])=>{
+    const col=NODE_COLORS[id];const g=ns('g');
+    const ring=set(ns('circle'),{cx:n.x,cy:n.y,r:'20',fill:col.ring});g.appendChild(ring);
+    const circle=set(ns('circle'),{cx:n.x,cy:n.y,r:'14',fill:'#0d1117',stroke:col.base,'stroke-width':'2'});g.appendChild(circle);
+    const dot=set(ns('circle'),{cx:n.x,cy:n.y,r:'6',fill:col.base});g.appendChild(dot);
+    const bgW=n.label.length*7;
+    const bg=set(ns('rect'),{x:n.x-bgW/2,y:n.y+19,width:bgW,height:14,rx:4,fill:'#0d1117',stroke:'#30363d','stroke-width':'0.5'});g.appendChild(bg);
+    const lbl=set(ns('text'),{x:n.x,y:n.y+29,'text-anchor':'middle','font-size':'9','font-weight':'600','font-family':'Syne,sans-serif',fill:col.base});
+    lbl.textContent=n.label;g.appendChild(lbl);
+    nodesLayer.appendChild(g);
+  });
+}
+
+function drawPath(path,src,dst){
+  pathLayer.innerHTML='';
+  if(!path||path.length<2)return;
+  for(let i=0;i<path.length-1;i++){
+    const na=NODES[path[i]],nb=NODES[path[i+1]];
+    const glow=set(ns('line'),{x1:na.x,y1:na.y,x2:nb.x,y2:nb.y,stroke:'#388bfd','stroke-width':'6','stroke-linecap':'round',opacity:'0.2'});
+    pathLayer.appendChild(glow);
+    const line=set(ns('line'),{x1:na.x,y1:na.y,x2:nb.x,y2:nb.y,stroke:'#388bfd','stroke-width':'2.5','stroke-linecap':'round','marker-end':'url(#arr-blue)',opacity:'0'});
+    pathLayer.appendChild(line);
+    setTimeout(()=>line.setAttribute('opacity','1'),i*200+100);
+  }
+  path.forEach((id,i)=>{
+    const n=NODES[id];
+    const isSrc=(id===src),isDst=(id===dst);
+    const col=isSrc?'#3fb950':isDst?'#f78166':'#388bfd';
+    const glowCol=isSrc?'rgba(63,185,80,0.35)':isDst?'rgba(247,129,102,0.35)':'rgba(56,139,253,0.35)';
+    const ring=set(ns('circle'),{cx:n.x,cy:n.y,r:'22',fill:glowCol,opacity:'0'});pathLayer.appendChild(ring);
+    setTimeout(()=>ring.setAttribute('opacity','1'),i*200);
+    const circle=set(ns('circle'),{cx:n.x,cy:n.y,r:isSrc||isDst?'16':'13',fill:'#0d1117',stroke:col,'stroke-width':'2.5',opacity:'0'});pathLayer.appendChild(circle);
+    setTimeout(()=>circle.setAttribute('opacity','1'),i*200);
+    const num=set(ns('text'),{x:n.x,y:n.y+4,'text-anchor':'middle','font-size':'9','font-weight':'700','font-family':'DM Mono,monospace',fill:col,opacity:'0'});
+    num.textContent=i+1;pathLayer.appendChild(num);
+    setTimeout(()=>num.setAttribute('opacity','1'),i*200);
+  });
+}
+
+function showResults(result,algo){
+  const bar=document.getElementById('results-bar');
+  if(!result){bar.innerHTML='<span style="font-size:10px;color:#484f58;font-family:DM Mono,monospace;">No path found.</span>';return;}
+  const algoLabel=algo==='ASTAR'?'A*':algo;
+  bar.innerHTML=`
+    <div class="result-chip chip-blue"><i class="ti ti-route" aria-hidden="true"></i>${result.path.join(' → ')}</div>
+    <div class="result-chip chip-green"><i class="ti ti-ruler" aria-hidden="true"></i>${result.cost}m</div>
+    <div class="result-chip chip-purple"><i class="ti ti-cpu" aria-hidden="true"></i>${algoLabel}</div>
+    <div class="result-chip chip-orange"><i class="ti ti-eye-search" aria-hidden="true"></i>${result.explored.length} explored</div>
+  `;
+}
+
+function addLog(entries){
+  const body=document.getElementById('log-body');body.innerHTML='';
+  entries.forEach((e,i)=>{
+    const div=document.createElement('div');div.className='log-entry';
+    div.innerHTML=`<div class="log-num done">${i+1}</div><div class="log-text">${e.text}</div>`;
+    body.appendChild(div);setTimeout(()=>div.classList.add('visible'),i*110+50);
+  });
+}
+
+let selectedAlgo='UCS';
+document.querySelectorAll('.pill').forEach(p=>{
+  p.addEventListener('click',()=>{
+    document.querySelectorAll('.pill').forEach(x=>x.classList.remove('selected'));
+    p.classList.add('selected');selectedAlgo=p.dataset.algo;
+  });
+});
+
+document.getElementById('find-btn').addEventListener('click',()=>{
+  const src=document.getElementById('source-select').value;
+  const dst=document.getElementById('dest-select').value;
+  if(src===dst)return;
+  const btn=document.getElementById('find-btn');
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader-2" aria-hidden="true"></i> Searching...';
+  setTimeout(()=>{
+    let result;
+    if(selectedAlgo==='BFS')result=bfs(src,dst);
+    else if(selectedAlgo==='UCS')result=ucs(src,dst);
+    else result=astar(src,dst);
+    const algoLabel=selectedAlgo==='ASTAR'?'A*':selectedAlgo;
+    const logs=[
+      {text:`<strong>Sensor Phase</strong><br>Source: ${src} → Dest: ${dst}`},
+      {text:`<strong>Map loaded</strong><br>${Object.keys(NODES).length} nodes, ${EDGES.length} edges`},
+      {text:`<strong>Algorithm</strong><br>${algoLabel} selected`},
+      ...result.explored.slice(0,-1).map(n=>({text:`Explored <strong>${n}</strong>`})),
+      {text:`<strong>Goal found!</strong><br>${dst} reached`},
+      {text:`<strong>Path length</strong><br>${result.cost}m · ${result.path.length} nodes`},
+    ];
+    drawBase();drawPath(result.path,src,dst);showResults(result,selectedAlgo);addLog(logs);
+    btn.disabled=false;btn.innerHTML='<i class="ti ti-route" aria-hidden="true"></i> Find Route';
+  },700);
+});
+
+drawBase();
+</script>
