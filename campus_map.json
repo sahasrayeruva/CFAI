@@ -1,0 +1,45 @@
+{
+  "Gate": {
+    "Library": 4,
+    "Admin": 6
+  },
+
+  "Library": {
+    "Gate": 4,
+    "Cafeteria": 3,
+    "Lab": 5
+  },
+
+  "Admin": {
+    "Gate": 6,
+    "Lab": 4,
+    "Auditorium": 7
+  },
+
+  "Lab": {
+    "Library": 5,
+    "Admin": 4,
+    "Classroom": 3
+  },
+
+  "Cafeteria": {
+    "Library": 3,
+    "Classroom": 5
+  },
+
+  "Classroom": {
+    "Lab": 3,
+    "Cafeteria": 5,
+    "Parking": 4
+  },
+
+  "Auditorium": {
+    "Admin": 7,
+    "Parking": 3
+  },
+
+  "Parking": {
+    "Classroom": 4,
+    "Auditorium": 3
+  }
+}
